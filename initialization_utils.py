@@ -18,6 +18,7 @@ ExperimentConfig = namedtuple(
         "repo"))
 
 CONFIG: Optional[ExperimentConfig] = None
+LOG_STRING = click.style("Experiment", fg="blue", bold=True)
 
 
 def interactive_initialize(
@@ -88,4 +89,6 @@ def _print_config() -> None:
     max_length = max(map(len, CONFIG._fields))
 
     for i in range(len(CONFIG)):
-        logging.info(f"{CONFIG._fields[i]: <{max_length}}: {CONFIG[i]}")
+        click.echo(f"{LOG_STRING} "
+                   f"{CONFIG._fields[i]: <{max_length}}: "
+                   f"{CONFIG[i]}")
