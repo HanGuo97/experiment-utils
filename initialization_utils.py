@@ -87,7 +87,7 @@ def _print_config() -> None:
     if CONFIG is None:
         return
     # Maximum field lengths
-    max_length = max(map(len, CONFIG._fields))
+    max_length = max(map(len, CONFIG._fields)) + 1
 
     for i in range(len(CONFIG)):
         click.echo(f"{LOG_STRING} "
