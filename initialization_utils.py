@@ -6,7 +6,7 @@ from datetime import datetime
 from collections import namedtuple
 from typing import Tuple, Optional
 
-from . import wandb_utils
+import wandb_utils
 logging.set_verbosity(logging.INFO)
 
 ExperimentConfig = namedtuple(
