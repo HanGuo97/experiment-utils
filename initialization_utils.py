@@ -30,6 +30,10 @@ def interactive_initialize(
     if not isinstance(base_log_dir, str):
         raise ValueError("`base_log_dir` must be String")
 
+    # Set file-scope configuration
+    global CONFIG
+
+    # Query user inputs
     project_name = click.prompt(
         "Please Enter The Project Name",
         type=str, default=default_project_name)
@@ -49,7 +53,6 @@ def interactive_initialize(
     # Experiment log dir
     logdir = os.path.join(base_log_dir, experiment_name)
 
-    # Set file-scope configuration
     CONFIG = ExperimentConfig(
         repo=git_repo,
         logdir=logdir,
