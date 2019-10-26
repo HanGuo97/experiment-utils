@@ -15,10 +15,10 @@ def wandb_initialize(
     if not isinstance(experiment_name, str):
         raise TypeError("`experiment_name` must be String")
 
-    click.style(f"Initializing W&B Project "
-                f"{project_name}: "
-                f"{experiment_name}",
-                fg="green")
+    click.echo(click.style(f"Initializing W&B Project "
+                           f"{project_name}: "
+                           f"{experiment_name}",
+                           fg="green"))
 
     wandb.init(project=project_name,
                name=experiment_name,
