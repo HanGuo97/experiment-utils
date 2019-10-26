@@ -5,6 +5,8 @@ from absl import logging
 from datetime import datetime
 from collections import namedtuple
 from typing import Tuple, Optional
+
+from . import wandb_utils
 logging.set_verbosity(logging.INFO)
 
 ExperimentConfig = namedtuple(
@@ -24,7 +26,8 @@ def interactive_initialize(
         base_log_dir: str=".",
         default_project_name: Optional[str]=None,
         default_experiment_tag: Optional[str]=None,
-        default_experiment_description: Optional[str]=None
+        default_experiment_description: Optional[str]=None,
+        initialize_wandb: bool=True
 ) -> ExperimentConfig:
     
     if not isinstance(base_log_dir, str):
@@ -65,6 +68,14 @@ def interactive_initialize(
 
     _print_config()
     click.confirm("Do you want to continue?", abort=True)
+
+    if initialize_wandb:
+        wandb_utils.wandb_initialize(
+            project_name=project_name,
+            experiment_name=experiment_name,
+            experiment_tag=experiment_tag,
+            experiment_notes=experiment_description)
+
 
     return CONFIG
 
