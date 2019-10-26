@@ -6,6 +6,7 @@ from absl import logging
 from datetime import datetime
 from collections import namedtuple
 from typing import Tuple, Optional
+logging.set_verbosity(logging.INFO)
 
 ExperimentConfig = namedtuple(
     "ExperimentConfig", (
