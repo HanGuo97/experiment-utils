@@ -67,10 +67,13 @@ def interactive_initialize(
         experiment_description=experiment_description)
 
     _print_config()
-    click.confirm("Do you want to continue?", abort=True)
 
+    # Confirm is the directory already exists
     if os.path.exists(CONFIG.logdir):
         click.confirm("Logdir already exists, continue?", abort=True)
+
+    # Confirm
+    click.confirm("Do you want to continue?", abort=True)
 
     if initialize_wandb:
         wandb_utils.wandb_initialize(
