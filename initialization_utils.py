@@ -15,7 +15,7 @@ ExperimentConfig = namedtuple(
         "experiment_tag",
         "experiment_name",
         "experiment_description",
-        "logdir",
+        "experiment_dir",
         "repo"))
 
 CONFIG: Optional[ExperimentConfig] = None
@@ -23,15 +23,15 @@ LOG_STRING = click.style("Experiment", fg="blue", bold=True)
 
 
 def interactive_initialize(
-        base_log_dir: str=".",
+        base_experiment_dir: str=".",
         default_project_name: Optional[str]=None,
         default_experiment_tag: Optional[str]=None,
         default_experiment_description: Optional[str]=None,
         initialize_wandb: bool=True
 ) -> ExperimentConfig:
     
-    if not isinstance(base_log_dir, str):
-        raise ValueError("`base_log_dir` must be String")
+    if not isinstance(base_experiment_dir, str):
+        raise ValueError("`base_experiment_dir` must be String")
 
     # Set file-scope configuration
     global CONFIG
@@ -56,21 +56,22 @@ def interactive_initialize(
     # Experiment Name will include more info
     experiment_name, git_repo = _get_experiment_name(tag=experiment_tag)
     # Experiment log dir
-    logdir = os.path.join(base_log_dir, experiment_name)
+    experiment_dir = os.path.join(base_experiment_dir, experiment_name)
 
     CONFIG = ExperimentConfig(
         repo=git_repo,
-        logdir=logdir,
         project_name=project_name,
         experiment_tag=experiment_tag,
+        experiment_dir=experiment_dir,
         experiment_name=experiment_name,
         experiment_description=experiment_description)
 
     _print_config()
 
     # Confirm is the directory already exists
-    if os.path.exists(CONFIG.logdir):
-        click.confirm("Logdir already exists, continue?", abort=True)
+    if os.path.exists(CONFIG.experiment_dir):
+        click.confirm(click.style(
+            "Experiment Dir already exists, continue?", fg="red"), abort=True)
 
     # Confirm
     click.confirm("Do you want to continue?", abort=True)
