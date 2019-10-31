@@ -1,23 +1,29 @@
 import torch
-from torch.nn.parallel import (
-    scatter_kwargs, gather, replicate, parallel_apply)
-from torch.cuda._utils import _get_device_index
 from itertools import chain
+from torch.nn.parallel import (gather,
+                               replicate,
+                               scatter_kwargs,
+                               parallel_apply)
+from torch.cuda._utils import _get_device_index
 
 
-def data_parallel(module, inputs, device_ids=None, output_device=None, dim=0, module_kwargs=None):
-    r"""Evaluates module(input) in parallel across the GPUs given in device_ids.
-    This is the functional version of the DataParallel module.
-    Args:
-        module (Module): the module to evaluate in parallel
-        inputs (Tensor): inputs to the module
-        device_ids (list of int or torch.device): GPU ids on which to replicate module
-        output_device (list of int or torch.device): GPU location of the output  Use -1 to indicate the CPU.
-            (default: device_ids[0])
-    Returns:
-        a Tensor containing the result of module(input) located on
-        output_device
+def data_parallel_with_post_processing(
+        func,
+        module,
+        inputs,
+        device_ids=None,
+        output_device=None,
+        dim=0,
+        module_kwargs=None):
+
+    r"""This is the functional version of the DataParallel module,
+        with additional support for processing outputs *before*
+        gathering.
     """
+    if not callable(func):
+        raise TypeError("`func` has to be callable, "
+                        "but found {}".format(type(func)))
+
     if not isinstance(inputs, tuple):
         inputs = (inputs,)
 
@@ -33,14 +39,19 @@ def data_parallel(module, inputs, device_ids=None, output_device=None, dim=0, mo
 
     for t in chain(module.parameters(), module.buffers()):
         if t.device != src_device_obj:
-            raise RuntimeError("module must have its parameters and buffers "
-                               "on device {} (device_ids[0]) but found one of "
-                               "them on device: {}".format(src_device_obj, t.device))
+            raise RuntimeError(
+                "module must have its parameters and buffers "
+                "on device {} (device_ids[0]) but found one of "
+                "them on device: {}".format(src_device_obj, t.device))
 
-    inputs, module_kwargs = scatter_kwargs(inputs, module_kwargs, device_ids, dim)
+    inputs, module_kwargs = scatter_kwargs(
+        inputs, module_kwargs, device_ids, dim)
     if len(device_ids) == 1:
         return module(*inputs[0], **module_kwargs[0])
     used_device_ids = device_ids[:len(inputs)]
     replicas = replicate(module, used_device_ids)
     outputs = parallel_apply(replicas, inputs, module_kwargs, used_device_ids)
+
+    # Process Outputs Before Gathering
+    outputs = func(outputs)
     return gather(outputs, output_device, dim)
