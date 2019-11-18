@@ -6,7 +6,7 @@ from typing import Dict, Optional
 def wandb_initialize(
         project_name: str,
         experiment_name: str,
-        experiment_tag: Optional[str]=None,
+        experiment_tags: Optional[str]=None,
         experiment_notes: Optional[str]=None) -> None:
     
     if not isinstance(project_name, str):
@@ -22,7 +22,7 @@ def wandb_initialize(
 
     wandb.init(project=project_name,
                name=experiment_name,
-               tags=[experiment_tag],
+               tags=experiment_tags,
                notes=experiment_notes,
                sync_tensorboard=True)
 
